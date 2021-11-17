@@ -5,6 +5,10 @@
 
 // Don't forget to include "wsock32" in the library list.
 
+
+//Dror's AND Noga UDP time_Server Program V 1.1//
+
+
 #include <stdio.h>      /* for printf(), fprintf() */
 #include <winsock.h>    /* for socket(),... */
 #include <stdlib.h>     /* for exit() */
@@ -16,6 +20,11 @@ void DieWithError(char *errorMessage)
     fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
     exit(1);
 }  /* External error handling function */
+
+
+
+
+
 
 void main(int argc, char *argv[])
 {
@@ -32,13 +41,23 @@ void main(int argc, char *argv[])
     time_t timer;
     char timeBuff[26];
 
-    if (argc < 2)         /* Test for correct number of parameters */
+
+
+
+     /* Test for correct number of parameters */
+    if (argc < 1)
     {
         fprintf(stderr, "Error: no port provided\n");
         exit(1);
     }
 
-    ServerPort = atoi(argv[1]); /* first arg:  Local port */
+
+
+
+    ServerPort = 1500; /*atoi(argv[1]); /* first arg:  Local port */
+
+
+
 
     if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
     {
