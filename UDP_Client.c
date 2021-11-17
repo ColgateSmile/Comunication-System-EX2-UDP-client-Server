@@ -34,14 +34,12 @@ void main(int argc, char *argv[])
     unsigned short ServerPort;     /* Echo server port */
     WSADATA wsaData;                 /* Structure for WinSock setup communication */
 
-
     /* Test for correct number of arguments */
     if ((argc < 1))
     {
         fprintf(stderr, "Error: no server port provided\n");
         exit(1);
     }
-
 
     ServerPort = getPort(); /*@#@!@Ask if we have to get the port number from Argument list  - than use atoi(argv[1]);*/
 
@@ -53,14 +51,11 @@ void main(int argc, char *argv[])
 
 
 
-
-
 void DieWithError(char *errorMessage)
 {
     fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
     exit(1);
 }  /* External error handling function */
-
 
 /*this Function is the User Interface With the Client PROGRAM*/
 int usrChoice()
@@ -75,7 +70,6 @@ int usrChoice()
         }
     return Choice;
 }
-
 
 /*this Function is the User Interface With the Client PROGRAM - Choose A port Number !!@!!! Ask if its important to get it from the ArgV*/
 int getPort(){
@@ -96,7 +90,8 @@ int getPort(){
 
 
 /*this function Loads The Send Buffer With The Correct Order TO The Server */
-const char *loadToSendBuffer(int Choice){
+char *loadToSendBuffer(int Choice){
+
 
     switch (Choice)
     {
@@ -113,7 +108,9 @@ const char *loadToSendBuffer(int Choice){
         return "MeasureRTT";
     case 6:
         return "GetDayAndMonth";
-
+    case 0:
+        return "User Closed The Program! :)"
+;
     }
 }
 

@@ -91,7 +91,7 @@ void main(int argc, char *argv[])
                    DieWithError(snum);
 
         }
-        recvBuff[recvMsgSize-1]='\0';
+        recvBuff[recvMsgSize]='\0';
 
         printf("Handling client.. \n");
         printf("Server Recieved : %s\n",recvBuff);
