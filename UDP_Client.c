@@ -44,11 +44,6 @@ void main(int argc, char *argv[])
 
 
     ServerPort = getPort(); /*@#@!@Ask if we have to get the port number from Argument list  - than use atoi(argv[1]);*/
-    if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
-    {
-        fprintf(stderr, "WSAStartup() failed");
-        exit(1);
-    }
 
     Run(ServerPort,wsaData);
 
@@ -78,12 +73,6 @@ int usrChoice()
         {
             DieWithError("UserChoice is Invalid");
         }
-
-    if(Choice == 0){
-        exit(0);
-    }
-
-
     return Choice;
 }
 
@@ -124,20 +113,30 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
 
 
 
- while(FOREVER)
+
+    while(FOREVER)
         {
 
 
-       userChoice = usrChoice();
-       printf("\n Choice is: %d \n",userChoice);
+        userChoice = usrChoice();
+        printf("\n Choice is: %d \n",userChoice);
+
+        if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
+            {
+                fprintf(stderr, "WSAStartup() failed");
+                exit(1);
+            }
 
 
-               //Here We got Our Self A BUG @@!!@@##!@# //
-               //Description: on the Second Time We Try To send To the Server We get socket() failed//
+
+
 
         /* Create a best-effort datagram socket using UDP */
         if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+        {
             DieWithError("socket() failed");
+
+        }
 
         /* Construct the server address structure */
         memset(&ServerAddr, 0, sizeof(ServerAddr));    /* Zero out structure */
@@ -147,6 +146,8 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
         ServerAddr.sin_port = htons(ServerPort);     /* Server port */
 
         /* Send the string, including the null terminator, to the server */
+
+
 
         if (sendRes = sendto(sock, sendBuff, strlen(sendBuff), 0, (struct sockaddr *)
                    &ServerAddr, sizeof(ServerAddr)) < 0)
@@ -160,14 +161,21 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
         fromSize = sizeof(fromAddr);
 
 
-        if (recvfrom(sock, recvBuff, 255, 0, (struct sockaddr *) &fromAddr,&fromSize) < 0)
+        if ((recvfrom(sock, recvBuff, 255, 0, (struct sockaddr *) &fromAddr,&fromSize) < 0) || !userChoice)
 
         {
-                DieWithError("Error at recvfrom() Server Not Found");
+            if(!userChoice){
+                DieWithError("\nUser Closed The Program!\n");
+            }
+                DieWithError("\nError at recvfrom() Server Not Found\n");
         }
+
         printf("Client Received : %s\n",recvBuff);
         printf("Closing Connection.");
+
         closesocket(sock);
+
+
         WSACleanup();  /* Cleanup Winsock */
 
 

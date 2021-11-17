@@ -15,13 +15,11 @@
 #include <time.h>
 #define ECHOMAX 255     /* Longest string to echo */
 #pragma comment(lib,"wsock32")
-void DieWithError(char *errorMessage)
-{
-    fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
-    exit(1);
-}  /* External error handling function */
 
 
+//Functions Deceleration//
+void DieWithError(char *errorMessage);
+int getPort();
 
 
 
@@ -41,20 +39,17 @@ void main(int argc, char *argv[])
     time_t timer;
     char timeBuff[26];
 
-
-
-
      /* Test for correct number of parameters */
     if (argc < 1)
     {
-        fprintf(stderr, "Error: no port provided\n");
+        fprintf(stderr, "\n Error: not Enough Arguments\n");
         exit(1);
     }
 
 
 
 
-    ServerPort = 1500; /*atoi(argv[1]); /* first arg:  Local port */
+    ServerPort = getPort(); /*atoi(argv[1]); /* first arg:  Local port */
 
 
 
@@ -115,5 +110,33 @@ void main(int argc, char *argv[])
          printf("Response sent.. \n");
          printf("Server Is Waiting for NEW Clients's requests. \n");
     }
-    /* NOT REACHED */
+
+    /*Server is Always On NOT REACHED */
+}
+
+
+
+void DieWithError(char *errorMessage)
+{
+    fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
+    exit(1);
+}  /* External error handling function */
+
+
+
+int getPort(){
+
+    int portNum = 0;
+    printf("welcome to The Time Server :) \n \n");
+    printf("what Port Do you Want To connect to: \n");
+
+    if (!scanf("%d",&portNum))
+        {
+            DieWithError("UserChoice is Invalid");
+        }
+    if(portNum <= 1024)
+    {
+        DieWithError("Invalid Port Number - it Should be more than 1024");
+    }
+
 }
