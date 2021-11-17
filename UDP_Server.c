@@ -23,7 +23,6 @@ int getPort();
 
 
 
-
 void main(int argc, char *argv[])
 {
     int sock;                        /* Socket */

@@ -95,6 +95,28 @@ int getPort(){
 }
 
 
+/*this function Loads The Send Buffer With The Correct Order TO The Server */
+const char *loadToSendBuffer(int Choice){
+
+    switch (Choice)
+    {
+    case 1:
+        return "GetTime";
+    case 2:
+        return "GetTimeWithoutYear";
+    case 3:
+        return "GetTimeSinceEpoch";
+    case 4:
+        return "GetClientToServerDelayEstimation";
+
+    case 5:
+        return "MeasureRTT";
+    case 6:
+        return "GetDayAndMonth";
+
+    }
+}
+
 
 //this Function Runs The client Loop//
 void Run( unsigned short ServerPort,WSADATA wsaData)
@@ -107,7 +129,7 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     char recvBuff[255];        /* Buffer for echo string */
     int sendRes;
     int i;
-    char sendBuff[16] = "\0";
+    char *sendBuff = "\0";
     int userChoice = 0;
 
 
@@ -119,7 +141,11 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
 
 
         userChoice = usrChoice();
+        sendBuff = loadToSendBuffer(userChoice);
+
         printf("\n Choice is: %d \n",userChoice);
+        printf("\n %s \n",sendBuff);
+
 
         if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
             {
