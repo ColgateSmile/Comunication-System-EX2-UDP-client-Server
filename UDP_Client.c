@@ -51,18 +51,30 @@ void main(int argc, char *argv[])
 
 
 
+/* @@@@@Functions implementation@@@@@ */
+
+
+
+/* External error handling function */
 void DieWithError(char *errorMessage)
 {
     fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
     exit(1);
-}  /* External error handling function */
+}
 
-/*this Function is the User Interface With the Client PROGRAM*/
+
+/* Function for the User Interface With the Client program*/
 int usrChoice()
 {
     int Choice;
-    printf("\n hello what Do the Server can help you with: \n");
-    printf("\n choose one of the Options:\n 1-GetTime\n 2-GetTimeWithoutYear\n 3-GetTimeSinceEpoch\n 4-GetClientToServerDelayEstimation\n 5-MeasureRTT\n 6-GetDayAndMonth\n 0-ExitClient ");
+
+    printf("\n");
+    printf("welcome to The 'Time Client APPLICATION' what Do the Server can help you with: \n\n");
+
+    printf("choose one of the Options(1-6):\n\n 1-Get Time\n\n 2-Get Time Without Year\n\n 3-Get Time Since Epoch\n\n 4-Get Client To Server Delay Estimation\n\n 5-Measure RTT\n\n 6-Get Day And Month\n\n 0-ExitClient ");
+    printf("\n");
+    printf(" \n");
+
 
     if (!scanf("%d",&Choice))
         {
@@ -71,15 +83,15 @@ int usrChoice()
     return Choice;
 }
 
-/*this Function is the User Interface With the Client PROGRAM - Choose A port Number !!@!!! Ask if its important to get it from the ArgV*/
+/*Additional Function for the User Interface With the Client program - Choose A port Number*/
 int getPort(){
 
     int portNum = 0;
-    printf("hello what Port Do you Want To connect to: \n");
+    printf("hello 'Time Client Application' User what Port Do you Want To connect to: \n\n");
 
     if (!scanf("%d",&portNum))
         {
-            DieWithError("UserChoice is Invalid");
+            DieWithError("User Choice of port is Invalid");
         }
     if(portNum <= 1024)
     {
@@ -89,7 +101,7 @@ int getPort(){
 }
 
 
-/*this function Loads The Send Buffer With The Correct Order TO The Server */
+/*function that Loads The Send Buffer With The According String to to the User Choice, sendBuffer is a String That we send to the server */
 char *loadToSendBuffer(int Choice){
 
 
@@ -109,8 +121,7 @@ char *loadToSendBuffer(int Choice){
     case 6:
         return "GetDayAndMonth";
     case 0:
-        return "User Closed The Program! :)"
-;
+        return "User Closed The Program! :)";
     }
 }
 
@@ -125,7 +136,7 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     unsigned int fromSize;           /* In-out of address size for recvfrom() */
     char recvBuff[255];        /* Buffer for echo string */
     int sendRes;
-    int i;
+    int flag = 1;
     char *sendBuff = "\0";
     int userChoice = 0;
 
@@ -136,12 +147,24 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     while(FOREVER)
         {
 
+        flag = 1;
+        while(flag)
+        {
+            userChoice = usrChoice();
+            if(userChoice<=6 && userChoice>=0){
+                flag=0;
+            }
+            else{
+                printf("\n");
+                printf("user input is invalid! -> please enter a number between 1-6\n");
+            }
+        }
 
-        userChoice = usrChoice();
         sendBuff = loadToSendBuffer(userChoice);
 
-        printf("\n Choice is: %d \n",userChoice);
-        printf("\n %s \n",sendBuff);
+        printf("\n");
+        printf("User Choice is: %d \n",userChoice);
+        printf("%s \n",sendBuff);
 
 
         if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
@@ -149,9 +172,6 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
                 fprintf(stderr, "WSAStartup() failed");
                 exit(1);
             }
-
-
-
 
 
         /* Create a best-effort datagram socket using UDP */
@@ -190,11 +210,12 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
             if(!userChoice){
                 DieWithError("\nUser Closed The Program!\n");
             }
-                DieWithError("\nError at recvfrom() Server Not Found\n");
+                DieWithError("\nError Server Not Found\n");
         }
 
         printf("Client Received : %s\n",recvBuff);
         printf("Closing Connection.");
+        printf("\n\n");
 
         closesocket(sock);
 

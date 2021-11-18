@@ -38,7 +38,8 @@ void main(int argc, char *argv[])
     time_t timer;
     char timeBuff[26];
 
-     /* Test for correct number of parameters */
+
+     /* Test for correct number of argument */
     if (argc < 1)
     {
         fprintf(stderr, "\n Error: not Enough Arguments\n");
@@ -94,6 +95,7 @@ void main(int argc, char *argv[])
         recvBuff[recvMsgSize]='\0';
 
         printf("Handling client.. \n");
+        printf("\n");
         printf("Server Recieved : %s\n",recvBuff);
         timer = time(NULL);
         tm_info = localtime(&timer);
@@ -139,3 +141,45 @@ int getPort(){
     }
 
 }
+
+//calasification Function -  Argument is The Char* sent from the client- it Calls The Right Time function and retrieve the Time Object//
+int ProcessrClientCommand(recvBuff)
+{
+
+    // Checking What Function We Should Use using string Compare (strcmp)//
+
+    if(!strcmp(recvBuff, "GetTime")){
+        return 1;
+
+    }
+
+    if(!strcmp(recvBuff, "GetTimeWithoutYear")){
+        return 1;
+
+    }
+
+    if(!strcmp(recvBuff, "GetTimeSinceEpoch")){
+        return 1;
+
+    }
+
+    if(!strcmp(recvBuff, "GetClientToServerDelayEstimation")){
+        return 1;
+
+    }
+
+    if(!strcmp(recvBuff,"MeasureRTT")){
+        return 1;
+
+    }
+
+    if(!strcmp(recvBuff,"GetDayAndMonth")){
+        return 1;
+
+    }
+
+    //we do not Receive  "User Closed The Program! :)" - server is always on not depends on Client's Activity//
+
+}
+
+
