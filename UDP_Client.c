@@ -69,12 +69,11 @@ int usrChoice()
     int Choice;
 
     printf("\n");
-    printf("welcome to The 'Time Client APPLICATION' what Do the Server can help you with: \n\n");
-
-    printf("choose one of the Options(1-6):\n\n 1-Get Time\n\n 2-Get Time Without Year\n\n 3-Get Time Since Epoch\n\n 4-Get Client To Server Delay Estimation\n\n 5-Measure RTT\n\n 6-Get Day And Month\n\n 0-ExitClient ");
+    printf(" welcome to The 'Time Client APPLICATION'\n\n");
+    printf(" what Do the Server can help you with: \n\n");
+    printf(" choose one of the Options(1-6):\n\n 1-Get Time\n\n 2-Get Time Without Year\n\n 3-Get Time Since Epoch\n\n 4-Get Client To Server Delay Estimation\n\n 5-Measure RTT\n\n 6-Get Day And Month\n\n 0-ExitClient ");
     printf("\n");
     printf(" \n");
-
 
     if (!scanf("%d",&Choice))
         {
@@ -87,7 +86,8 @@ int usrChoice()
 int getPort(){
 
     int portNum = 0;
-    printf("hello 'Time Client Application' User what Port Do you Want To connect to: \n\n");
+    printf("'Time Client Application:'\n\n");
+    printf(" what Port Number Do you Want To connect to: \n\n");
 
     if (!scanf("%d",&portNum))
         {
@@ -142,8 +142,6 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
 
 
 
-
-
     while(FOREVER)
         {
 
@@ -159,6 +157,11 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
                 printf("user input is invalid! -> please enter a number between 1-6\n");
             }
         }
+        if(userChoice == 0){//closing the Program here- No Socket created yet//
+            printf("User Closed The Program! :) all Sockets are closed");
+            exit(0);
+            }
+
 
         sendBuff = loadToSendBuffer(userChoice);
 
@@ -199,21 +202,18 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
                    }
 
 
-        /* Recv a response */
 
         fromSize = sizeof(fromAddr);
+        strncpy(recvBuff,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 64);
 
-
-        if ((recvfrom(sock, recvBuff, 255, 0, (struct sockaddr *) &fromAddr,&fromSize) < 0) || !userChoice)
-
-        {
-            if(!userChoice){
-                DieWithError("\nUser Closed The Program!\n");
-            }
+        /* Recv a response */
+        if ((recvfrom(sock, recvBuff, 255, 0, (struct sockaddr *) &fromAddr,&fromSize) < 0) )
+            {
                 DieWithError("\nError Server Not Found\n");
-        }
+            }
 
         printf("Client Received : %s\n",recvBuff);
+        printf("\n");
         printf("Closing Connection.");
         printf("\n\n");
 

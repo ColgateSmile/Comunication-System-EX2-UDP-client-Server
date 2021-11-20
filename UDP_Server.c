@@ -14,12 +14,16 @@
 #include <stdlib.h>     /* for exit() */
 #include <time.h>
 #define ECHOMAX 255     /* Longest string to echo */
+#define SIZE    64
+#define SECONDS 3600
 #pragma comment(lib,"wsock32")
 
 
 //Functions Deceleration//
 void DieWithError(char *errorMessage);
 int getPort();
+char * ProcessrClientCommand(char *recvBuff);
+
 
 
 
@@ -36,7 +40,8 @@ void main(int argc, char *argv[])
     int recvMsgSize;                 /* Size of received message */
     WSADATA wsaData;                 /* Structure for WinSock setup communication */
     time_t timer;
-    char timeBuff[26];
+    char *timeBuff= "\0";
+
 
 
      /* Test for correct number of argument */
@@ -45,8 +50,6 @@ void main(int argc, char *argv[])
         fprintf(stderr, "\n Error: not Enough Arguments\n");
         exit(1);
     }
-
-
 
 
     ServerPort = getPort(); /*atoi(argv[1]); /* first arg:  Local port */
@@ -60,9 +63,16 @@ void main(int argc, char *argv[])
         exit(1);
     }
 
+
+
+
     /* Create socket for sending/receiving datagrams */
     if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
         DieWithError("socket() failed");
+
+
+
+
 
     /* Construct local address structure */
     memset(&ServerAddr, 0, sizeof(ServerAddr));   /* Zero out structure */
@@ -70,18 +80,22 @@ void main(int argc, char *argv[])
     ServerAddr.sin_addr.s_addr = htonl(INADDR_ANY); /* Any incoming interface */
     ServerAddr.sin_port = htons(ServerPort);      /* Local port */
 
+
+
+
     /* Bind to the local address */
     if (bind(sock, (struct sockaddr *) &ServerAddr, sizeof(ServerAddr)) < 0)
         DieWithError("bind() failed");
+
 
     printf("The Server Is Ready,Waiting For Clients At Port : %d\n",ServerPort);
 
     while(1) /* Run forever */
     {
 
-
         /* Set the size of the in-out parameter */
         cliLen = sizeof(ClientAddr);
+
 
         /* Block until receive message from a client */
         recvMsgSize = recvfrom(sock, recvBuff, 255, 0,(struct sockaddr *) &ClientAddr, &cliLen);
@@ -90,24 +104,26 @@ void main(int argc, char *argv[])
                    char snum[5];
                    itoa(recvMsgSize, snum, 10);
                    DieWithError(snum);
-
         }
+
         recvBuff[recvMsgSize]='\0';
 
-        printf("Handling client.. \n");
+        printf("Handling client... \n");
         printf("\n");
-        printf("Server Recieved : %s\n",recvBuff);
-        timer = time(NULL);
-        tm_info = localtime(&timer);
-        strftime(timeBuff, 26, "%Y-%m-%d %H:%M:%S", tm_info);
-        printf("Time : %s\n",timeBuff);
+        printf("Server Received : %s\n",recvBuff);
 
+
+
+        //Calling the "- ProcessrClientCommand -" calculating the Right Answer To the client and casting the return char* to a Char Array//
+        strncpy(sendBuff,"\0", 64);
+        strncpy(sendBuff, ProcessrClientCommand(recvBuff), 64);
 
 
          /* Send received datagram back to the client */
-         if (sendto(sock, timeBuff, strlen(timeBuff), 0, (struct sockaddr *) &ClientAddr,
-                     sizeof(ClientAddr)) <0)
-             DieWithError("sendto() sent a different number of bytes than expected");
+         if (sendto(sock, sendBuff, strlen(sendBuff), 0, (struct sockaddr *) &ClientAddr,sizeof(ClientAddr)) <0){
+                    DieWithError("sendto() sent a different number of bytes than expected");
+         }
+
          printf("Response sent.. \n");
          printf("Server Is Waiting for NEW Clients's requests. \n");
     }
@@ -142,39 +158,63 @@ int getPort(){
 
 }
 
-//calasification Function -  Argument is The Char* sent from the client- it Calls The Right Time function and retrieve the Time Object//
-int ProcessrClientCommand(recvBuff)
+
+//classification Function -  Argument is The Char* sent from the client- it Calls The Right Time function and retrieve the Time Object//
+char *ProcessrClientCommand(char *recvBuff)
 {
+    time_t timer;
+    struct tm *tm_info;
+    char *timeBuff = malloc(SIZE);
+
+    //Using Strncpy to flush the buffer- to prevent a bug//
+    strncpy(timeBuff,"\0", 64);
 
     // Checking What Function We Should Use using string Compare (strcmp)//
 
+
+    //Works
     if(!strcmp(recvBuff, "GetTime")){
-        return 1;
+
+        timer = time(NULL);
+        tm_info = localtime(&timer);
+        strftime(timeBuff, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+        return timeBuff;
 
     }
 
+    //Works
     if(!strcmp(recvBuff, "GetTimeWithoutYear")){
-        return 1;
+
+
+        timer = time(NULL);
+        tm_info = localtime(&timer);
+        strftime(timeBuff, 26, "%m-%d %H:%M:%S", tm_info);
+        return timeBuff;
+
 
     }
 
+    //Works
     if(!strcmp(recvBuff, "GetTimeSinceEpoch")){
-        return 1;
+
+        timer = time(NULL);
+        sprintf(timeBuff,"%d seconds since:1/1/1970",timer);
+        return timeBuff;
 
     }
 
     if(!strcmp(recvBuff, "GetClientToServerDelayEstimation")){
-        return 1;
+        return timeBuff;
 
     }
 
     if(!strcmp(recvBuff,"MeasureRTT")){
-        return 1;
+        return timeBuff;
 
     }
 
     if(!strcmp(recvBuff,"GetDayAndMonth")){
-        return 1;
+        return timeBuff;
 
     }
 
