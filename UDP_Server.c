@@ -101,9 +101,7 @@ void main(int argc, char *argv[])
         recvMsgSize = recvfrom(sock, recvBuff, 255, 0,(struct sockaddr *) &ClientAddr, &cliLen);
         if (recvMsgSize < 0)
         {
-                   char snum[5];
-                   itoa(recvMsgSize, snum, 10);
-                   DieWithError(snum);
+                   DieWithError("receive Function 'recvfrom()' Failed");
         }
 
         recvBuff[recvMsgSize]='\0';
@@ -115,8 +113,8 @@ void main(int argc, char *argv[])
 
 
         //Calling the "- ProcessrClientCommand -" calculating the Right Answer To the client and casting the return char* to a Char Array//
-        strncpy(sendBuff,"\0", 64);
-        strncpy(sendBuff, ProcessrClientCommand(recvBuff), 64);
+        strncpy(sendBuff,"\0", SIZE);
+        strncpy(sendBuff, ProcessrClientCommand(recvBuff), SIZE);
 
 
          /* Send received datagram back to the client */
@@ -137,7 +135,7 @@ void DieWithError(char *errorMessage)
 {
     fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
     exit(1);
-}  /* External error handling function */
+}  // External error handling function //
 
 
 
@@ -165,9 +163,10 @@ char *ProcessrClientCommand(char *recvBuff)
     time_t timer;
     struct tm *tm_info;
     char *timeBuff = malloc(SIZE);
+    DWORD ticks;
 
     //Using Strncpy to flush the buffer- to prevent a bug//
-    strncpy(timeBuff,"\0", 64);
+    strncpy(timeBuff,"\0", SIZE);
 
     // Checking What Function We Should Use using string Compare (strcmp)//
 
@@ -177,7 +176,7 @@ char *ProcessrClientCommand(char *recvBuff)
 
         timer = time(NULL);
         tm_info = localtime(&timer);
-        strftime(timeBuff, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+        strftime(timeBuff, SIZE, "%d-%m-%Y %H:%M:%S", tm_info);
         return timeBuff;
 
     }
@@ -188,7 +187,7 @@ char *ProcessrClientCommand(char *recvBuff)
 
         timer = time(NULL);
         tm_info = localtime(&timer);
-        strftime(timeBuff, 26, "%m-%d %H:%M:%S", tm_info);
+        strftime(timeBuff, SIZE, "%d-%m %H:%M:%S", tm_info);
         return timeBuff;
 
 
@@ -204,16 +203,28 @@ char *ProcessrClientCommand(char *recvBuff)
     }
 
     if(!strcmp(recvBuff, "GetClientToServerDelayEstimation")){
+
+    //!!Dose Not!! Work - need To calculate Client GetTickCount()- ServerANSWER//
+        ticks = GetTickCount();
+        sprintf(timeBuff,"%d",ticks);
         return timeBuff;
+
 
     }
 
+    //Works
     if(!strcmp(recvBuff,"MeasureRTT")){
-        return timeBuff;
+
+        // Returns a flag to the Client so he will be able to know when to calculate the RTT By subtracting the ///
+        //GetTickCount()(after Receiving from Server)- GetTickCount()(before Send) - Both Times Have to Be Taken At The Same Client End //
+        return "MRTT";//MRTT IS A FLAG string//
 
     }
 
     if(!strcmp(recvBuff,"GetDayAndMonth")){
+        timer = time(NULL);
+        tm_info = localtime(&timer);
+        strftime(timeBuff, SIZE, "%d-%m", tm_info);
         return timeBuff;
 
     }

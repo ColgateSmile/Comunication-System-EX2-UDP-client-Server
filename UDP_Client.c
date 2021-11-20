@@ -139,11 +139,14 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     int flag = 1;
     char *sendBuff = "\0";
     int userChoice = 0;
+    DWORD ticksSend;
+    DWORD ticksRecive;
 
 
 
     while(FOREVER)
         {
+
 
         flag = 1;
         while(flag)
@@ -158,12 +161,20 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
             }
         }
         if(userChoice == 0){//closing the Program here- No Socket created yet//
+
+            printf("\n");
+            printf("Closing Connection.");
+            printf("\n\n");
+            closesocket(sock);
             printf("User Closed The Program! :) all Sockets are closed");
+
             exit(0);
             }
 
 
+
         sendBuff = loadToSendBuffer(userChoice);
+
 
         printf("\n");
         printf("User Choice is: %d \n",userChoice);
@@ -191,10 +202,10 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
 
         ServerAddr.sin_port = htons(ServerPort);     /* Server port */
 
+        //For The RTT measurement - we save the time in Ticks before we send//
+        ticksSend = GetTickCount();
+
         /* Send the string, including the null terminator, to the server */
-
-
-
         if (sendRes = sendto(sock, sendBuff, strlen(sendBuff), 0, (struct sockaddr *)
                    &ServerAddr, sizeof(ServerAddr)) < 0)
                    {
@@ -212,13 +223,20 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
                 DieWithError("\nError Server Not Found\n");
             }
 
-        printf("Client Received : %s\n",recvBuff);
-        printf("\n");
-        printf("Closing Connection.");
+        //in case of RTT measurement - The server Send us a Flag AND we calculate the Time here//
+        if(!strcmp(recvBuff, "MRTT")){
+
+            double res=0;
+            ticksRecive = GetTickCount();
+            res = (double)ticksRecive - (double)ticksSend;
+            printf("The Round Trip Time (RTT) is: %f milliseconds\n",res);
+        }
+
+        else{
+            printf("Client Received : %s\n",recvBuff);
+        }
+
         printf("\n\n");
-
-        closesocket(sock);
-
 
         WSACleanup();  /* Cleanup Winsock */
 
