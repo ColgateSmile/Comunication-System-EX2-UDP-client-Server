@@ -223,13 +223,14 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
                 DieWithError("\nError Server Not Found\n");
             }
 
-        //in case of RTT measurement - The server Send us a Flag AND we calculate the Time here//
+        //in case of RTT measurement - The server Send us a Flag AND we calculate the Time here => TimeNow - Time of packet Sent//
         if(!strcmp(recvBuff, "MRTT")){
 
-            double res=0;
+            float  res = 0;
             ticksRecive = GetTickCount();
-            res = (double)ticksRecive - (double)ticksSend;
-            printf("The Round Trip Time (RTT) is: %f milliseconds\n",res);
+            printf("\n\n\n@@@@@ ticksRecive = %d AND ticksSend = %d \n \n",ticksRecive,ticksSend );
+            res = ((float)ticksRecive - (float)ticksSend);
+            printf("The Round Trip Time (RTT) is: %lf milliseconds\n",res);
         }
 
         else{

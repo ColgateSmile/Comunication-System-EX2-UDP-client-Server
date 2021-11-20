@@ -52,7 +52,7 @@ void main(int argc, char *argv[])
     }
 
 
-    ServerPort = getPort(); /*atoi(argv[1]); /* first arg:  Local port */
+    ServerPort = getPort();
 
 
 
@@ -204,7 +204,9 @@ char *ProcessrClientCommand(char *recvBuff)
 
     if(!strcmp(recvBuff, "GetClientToServerDelayEstimation")){
 
-    //!!Dose Not!! Work - need To calculate Client GetTickCount()- ServerANSWER//
+    //!!doesn't !! Work !! - need To calculate Client GetTickCount()- ServerANSWER//
+    //!!doesn't !! Work !! - need To calculate Client GetTickCount()- ServerANSWER//
+
         ticks = GetTickCount();
         sprintf(timeBuff,"%d",ticks);
         return timeBuff;
