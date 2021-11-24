@@ -13,6 +13,7 @@
 #include <winsock.h>    /* for socket(),... */
 #include <stdlib.h>     /* for exit() */
 #include <time.h>
+
 #define ECHOMAX 255     /* Longest string to echo */
 #define SIZE    64
 #define SECONDS 3600
@@ -90,6 +91,7 @@ void main(int argc, char *argv[])
 
     printf("The Server Is Ready,Waiting For Clients At Port : %d\n",ServerPort);
 
+
     while(1) /* Run forever */
     {
 
@@ -163,13 +165,12 @@ char *ProcessrClientCommand(char *recvBuff)
     time_t timer;
     struct tm *tm_info;
     char *timeBuff = malloc(SIZE);
-    DWORD ticks;
+    unsigned int ticks;
 
     //Using Strncpy to flush the buffer- to prevent a bug//
     strncpy(timeBuff,"\0", SIZE);
 
     // Checking What Function We Should Use using string Compare (strcmp)//
-
 
     //Works
     if(!strcmp(recvBuff, "GetTime")){
@@ -208,6 +209,7 @@ char *ProcessrClientCommand(char *recvBuff)
     //!!doesn't !! Work !! - need To calculate Client GetTickCount()- ServerANSWER//
 
         ticks = GetTickCount();
+
         sprintf(timeBuff,"%d",ticks);
         return timeBuff;
 
@@ -220,8 +222,9 @@ char *ProcessrClientCommand(char *recvBuff)
         // Returns a flag to the Client so he will be able to know when to calculate the RTT By subtracting the ///
         //GetTickCount()(after Receiving from Server)- GetTickCount()(before Send) - Both Times Have to Be Taken At The Same Client End //
         return "MRTT";//MRTT IS A FLAG string//
-
     }
+
+
 
     if(!strcmp(recvBuff,"GetDayAndMonth")){
         timer = time(NULL);

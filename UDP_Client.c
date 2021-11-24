@@ -18,6 +18,7 @@
 
 #define ECHOMAX 255     /* Longest string to echo */
 #define FOREVER 1       /*Forever While Loop*/
+#define SIZE    64
 
 
 //@@@@Function Deceleration@@@@//
@@ -134,13 +135,13 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     struct sockaddr_in ServerAddr; /* Echo server address */
     struct sockaddr_in fromAddr;     /* Source address of echo */
     unsigned int fromSize;           /* In-out of address size for recvfrom() */
-    char recvBuff[255];        /* Buffer for echo string */
+    char recvBuff[ECHOMAX];        /* Buffer for echo string */
     int sendRes;
     int flag = 1;
     char *sendBuff = "\0";
     int userChoice = 0;
-    DWORD ticksSend;
-    DWORD ticksRecive;
+    unsigned int ticksSend;
+    unsigned int ticksRecive;
 
 
 
@@ -226,11 +227,11 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
         //in case of RTT measurement - The server Send us a Flag AND we calculate the Time here => TimeNow - Time of packet Sent//
         if(!strcmp(recvBuff, "MRTT")){
 
-            float  res = 0;
+            unsigned int  res = 0;
             ticksRecive = GetTickCount();
             printf("\n\n\n@@@@@ ticksRecive = %d AND ticksSend = %d \n \n",ticksRecive,ticksSend );
-            res = ((float)ticksRecive - (float)ticksSend);
-            printf("The Round Trip Time (RTT) is: %lf milliseconds\n",res);
+            res = (ticksRecive - ticksSend);
+            printf("The Round Trip Time (RTT) is: %d milliseconds\n",res);
         }
 
         else{
