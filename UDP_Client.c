@@ -28,8 +28,6 @@ void Run(unsigned short ServerPort,WSADATA wsaData);
 int getPort();
 
 
-
-
 void main(int argc, char *argv[])
 {
     unsigned short ServerPort;     /* Echo server port */
@@ -126,6 +124,46 @@ char *loadToSendBuffer(int Choice){
     }
 }
 
+//This Function Construct The Server Address//
+struct sockaddr_in SetSocketAddr(){
+
+    struct sockaddr_in ServerAddr; /* Echo server address */
+
+    /* Construct the server address structure */
+        memset(&ServerAddr, 0, sizeof(ServerAddr));    /* Zero out structure */
+        ServerAddr.sin_family = AF_INET;                 /* Internet address family */
+        ServerAddr.sin_addr.s_addr = inet_addr("127.0.0.1");  /* Server IP address */
+
+    return ServerAddr;
+};
+
+
+int UserInputCheck(){
+
+ int flag = 1;
+ int userChoice =0;
+
+        while(flag)
+        {
+            userChoice = usrChoice();
+            if(userChoice<=6 && userChoice>=0){
+                flag=0;
+            }
+            else{
+                printf("\n");
+                printf("user input is invalid! -> please enter a number between 1-6\n");
+            }
+        }
+
+
+return userChoice;
+
+}
+
+
+
+
+
 
 //this Function Runs The client Loop//
 void Run( unsigned short ServerPort,WSADATA wsaData)
@@ -144,38 +182,27 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     unsigned int ticksRecive;
 
 
+    ServerAddr = SetSocketAddr();
+
 
     while(FOREVER)
         {
 
 
-        flag = 1;
-        while(flag)
-        {
-            userChoice = usrChoice();
-            if(userChoice<=6 && userChoice>=0){
-                flag=0;
-            }
-            else{
-                printf("\n");
-                printf("user input is invalid! -> please enter a number between 1-6\n");
-            }
-        }
-        if(userChoice == 0){//closing the Program here- No Socket created yet//
+    userChoice = UserInputCheck();
+    //closing the Program here- No Socket created yet//
+    if(userChoice == 0)
+    {
 
-            printf("\n");
-            printf("Closing Connection.");
-            printf("\n\n");
-            closesocket(sock);
-            printf("User Closed The Program! :) all Sockets are closed");
+        printf("\n");
+        printf("Closing Connection.");
+        printf("\n\n");
+        closesocket(sock);
+        printf("User Closed The Program! :) all Sockets are closed");
 
-            exit(0);
-            }
-
-
-
+        exit(0);
+    }
         sendBuff = loadToSendBuffer(userChoice);
-
 
         printf("\n");
         printf("User Choice is: %d \n",userChoice);
@@ -187,19 +214,12 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
                 fprintf(stderr, "WSAStartup() failed");
                 exit(1);
             }
-
-
         /* Create a best-effort datagram socket using UDP */
         if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
         {
             DieWithError("socket() failed");
 
         }
-
-        /* Construct the server address structure */
-        memset(&ServerAddr, 0, sizeof(ServerAddr));    /* Zero out structure */
-        ServerAddr.sin_family = AF_INET;                 /* Internet address family */
-        ServerAddr.sin_addr.s_addr = inet_addr("127.0.0.1");  /* Server IP address */
 
         ServerAddr.sin_port = htons(ServerPort);     /* Server port */
 
@@ -230,7 +250,7 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
             unsigned int  res = 0;
             ticksRecive = GetTickCount();
             printf("\n\n\n@@@@@ ticksRecive = %d AND ticksSend = %d \n \n",ticksRecive,ticksSend );
-            res = (ticksRecive - ticksSend);
+            res += (ticksRecive - ticksSend);
             printf("The Round Trip Time (RTT) is: %d milliseconds\n",res);
         }
 
