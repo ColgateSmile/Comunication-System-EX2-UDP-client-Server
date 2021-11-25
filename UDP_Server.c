@@ -17,6 +17,12 @@
 #define ECHOMAX 255     /* Longest string to echo */
 #define SIZE    64
 #define SECONDS 3600
+#define PORTMAX 65535
+#define PORTMIN 1024
+
+
+
+
 #pragma comment(lib,"wsock32")
 
 
@@ -151,7 +157,7 @@ int getPort(){
         {
             DieWithError("UserChoice is Invalid");
         }
-    if(portNum <= 1024)
+    if(portNum <= PORTMIN || portNum> PORTMAX)
     {
         DieWithError("Invalid Port Number - it Should be more than 1024");
     }
@@ -204,7 +210,13 @@ char *ProcessrClientCommand(char *recvBuff)
     }
 
     if(!strcmp(recvBuff, "GetClientToServerDelayEstimation")){
-        return "DELAY";
+        /*GetTickCount of server, in order to calculate client-server delay*/
+        char *serverTicks= (char*)malloc(sizeof(char)*SIZE);
+        if (serverTicks == NULL)
+            DieWithError("Allocation Failed\n");
+        /*convert tick number to string*/
+        sprintf(serverTicks, "%d", GetTickCount());
+        return serverTicks;
     }
 
     /*Works*/

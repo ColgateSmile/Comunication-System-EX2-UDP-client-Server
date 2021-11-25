@@ -19,6 +19,8 @@
 #define FOREVER 1       /*Forever While Loop*/
 #define SIZE    64
 #define AVERAGE_CASES 100
+#define PORTMAX 65535
+#define PORTMIN 1024
 
 
 /*@@@@Function Deceleration@@@@*/
@@ -32,7 +34,7 @@ struct sockaddr_in SetSocketAddr();
 
 
 
-//Main//
+/*Main*/
 void main(int argc, char *argv[])
 {
     unsigned short ServerPort;     /* Echo server port */
@@ -96,7 +98,7 @@ int getPort(){
         {
             DieWithError("User Choice of port is Invalid");
         }
-    if(portNum <= 1024)
+    if(portNum <= PORTMIN || portNum > PORTMAX)
     {
         DieWithError("Invalid Port Number - it Should be more than 1024");
     }
@@ -262,7 +264,7 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
             recvResponse(sock, recvBuff, fromAddr, fromSize);
 
 
-            if(!strcmp(recvBuff, "DELAY")){
+            if(userChoice == 4){
                 unsigned int ticksServer[AVERAGE_CASES] = {0};
                 unsigned int ticksClient[AVERAGE_CASES] = {0};
                 int i = 0;
@@ -273,7 +275,7 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
                 while (averageFlag){
                     /*send 100 requests and save server's time stamp*/
                     sendRequest(sock, sendBuff, ServerAddr);
-                    ticksServer[i] = GetTickCount();
+                    ticksServer[i] = atoi(recvBuff);
                     averageFlag--;
                     i++;
                 }
