@@ -3,10 +3,10 @@
 /* 1.  Changed header files.                                                   */
 /* 2.  Added WSAStartUP().                                                     */
 
-// Don't forget to include "wsock32" in the library list.
+/* Don't forget to include "wsock32" in the library list.
 
 
-//Dror's AND Noga UDP time_Server Program V 1.1//
+/*Dror's AND Noga UDP time_Server Program V 1.1*/
 
 
 #include <stdio.h>      /* for printf(), fprintf() */
@@ -20,7 +20,7 @@
 #pragma comment(lib,"wsock32")
 
 
-//Functions Deceleration//
+/*Functions Deceleration*/
 void DieWithError(char *errorMessage);
 int getPort();
 char * ProcessrClientCommand(char *recvBuff);
@@ -114,7 +114,7 @@ void main(int argc, char *argv[])
 
 
 
-        //Calling the "- ProcessrClientCommand -" calculating the Right Answer To the client and casting the return char* to a Char Array//
+        /*Calling the "- ProcessrClientCommand -" calculating the Right Answer To the client and casting the return char* to a Char Array*/
         strncpy(sendBuff,"\0", SIZE);
         strncpy(sendBuff, ProcessrClientCommand(recvBuff), SIZE);
 
@@ -137,7 +137,7 @@ void DieWithError(char *errorMessage)
 {
     fprintf(stderr,"%s: %d\n", errorMessage, WSAGetLastError());
     exit(1);
-}  // External error handling function //
+}  /* External error handling function */
 
 
 
@@ -159,7 +159,7 @@ int getPort(){
 }
 
 
-//classification Function -  Argument is The Char* sent from the client- it Calls The Right Time function and retrieve the Time Object//
+/*classification Function -  Argument is The Char* sent from the client- it Calls The Right Time function and retrieve the Time Object*/
 char *ProcessrClientCommand(char *recvBuff)
 {
     time_t timer;
@@ -167,12 +167,12 @@ char *ProcessrClientCommand(char *recvBuff)
     char *timeBuff = malloc(SIZE);
     unsigned int ticks;
 
-    //Using Strncpy to flush the buffer- to prevent a bug//
+    /*Using Strncpy to flush the buffer- to prevent a bug*/
     strncpy(timeBuff,"\0", SIZE);
 
-    // Checking What Function We Should Use using string Compare (strcmp)//
+    /* Checking What Function We Should Use using string Compare (strcmp)*/
 
-    //Works
+    /*Works*/
     if(!strcmp(recvBuff, "GetTime")){
 
         timer = time(NULL);
@@ -182,7 +182,7 @@ char *ProcessrClientCommand(char *recvBuff)
 
     }
 
-    //Works
+    /*Works*/
     if(!strcmp(recvBuff, "GetTimeWithoutYear")){
 
 
@@ -194,34 +194,25 @@ char *ProcessrClientCommand(char *recvBuff)
 
     }
 
-    //Works
+    /*Works*/
     if(!strcmp(recvBuff, "GetTimeSinceEpoch")){
 
         timer = time(NULL);
-        sprintf(timeBuff,"%d seconds since:1/1/1970",timer);
+        sprintf(timeBuff,"%d seconds since: 1/1/1970",timer);
         return timeBuff;
 
     }
 
     if(!strcmp(recvBuff, "GetClientToServerDelayEstimation")){
-
-    //!!doesn't !! Work !! - need To calculate Client GetTickCount()- ServerANSWER//
-    //!!doesn't !! Work !! - need To calculate Client GetTickCount()- ServerANSWER//
-
-        ticks = GetTickCount();
-
-        sprintf(timeBuff,"%d",ticks);
-        return timeBuff;
-
-
+        return "DELAY";
     }
 
-    //Works
+    /*Works*/
     if(!strcmp(recvBuff,"MeasureRTT")){
 
-        // Returns a flag to the Client so he will be able to know when to calculate the RTT By subtracting the ///
-        //GetTickCount()(after Receiving from Server)- GetTickCount()(before Send) - Both Times Have to Be Taken At The Same Client End //
-        return "MRTT";//MRTT IS A FLAG string//
+        /* Returns a flag to the Client so he will be able to know when to calculate the RTT By subtracting the ///
+        /*GetTickCount()(after Receiving from Server)- GetTickCount()(before Send) - Both Times Have to Be Taken At The Same Client End */
+        return "MRTT";/*MRTT IS A FLAG string*/
     }
 
 
@@ -234,7 +225,7 @@ char *ProcessrClientCommand(char *recvBuff)
 
     }
 
-    //we do not Receive  "User Closed The Program! :)" - server is always on not depends on Client's Activity//
+    /*we do not Receive  "User Closed The Program! :)" - server is always on not depends on Client's Activity*/
 
 }
 

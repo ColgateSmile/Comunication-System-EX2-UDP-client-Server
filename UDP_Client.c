@@ -4,11 +4,10 @@
 /* 2.  Added WSAStartUP() and WSACleanUp().                                    */
 /* 3.  Used closesocket() instead of close().                                  */
 
-// Don't forget to include "wsock32" in the library list.
+/* Don't forget to include "wsock32" in the library list.
 
 
-//Dror's AND Noga UDP time_Client Program V 1.1//
-
+/*Dror's AND Noga UDP time_Client Program V 1.1*/
 
 
 #include <stdio.h>      /* for printf(), fprintf() */
@@ -19,15 +18,21 @@
 #define ECHOMAX 255     /* Longest string to echo */
 #define FOREVER 1       /*Forever While Loop*/
 #define SIZE    64
+#define AVERAGE_CASES 100
 
 
-//@@@@Function Deceleration@@@@//
+/*@@@@Function Deceleration@@@@*/
 void DieWithError(char *errorMessage);
+int getPort();
 int usrChoise();
 void Run(unsigned short ServerPort,WSADATA wsaData);
-int getPort();
+void recvResponse(int sock, char recvBuff[ECHOMAX], struct sockaddr_in fromAddr, unsigned int fromSize);
+unsigned int sendRequest(int sock, char *sendBuff, struct sockaddr_in ServerAddr);
+struct sockaddr_in SetSocketAddr();
 
 
+
+//Main//
 void main(int argc, char *argv[])
 {
     unsigned short ServerPort;     /* Echo server port */
@@ -40,7 +45,7 @@ void main(int argc, char *argv[])
         exit(1);
     }
 
-    ServerPort = getPort(); /*@#@!@Ask if we have to get the port number from Argument list  - than use atoi(argv[1]);*/
+    ServerPort = getPort();
 
     Run(ServerPort,wsaData);
 
@@ -51,7 +56,6 @@ void main(int argc, char *argv[])
 
 
 /* @@@@@Functions implementation@@@@@ */
-
 
 
 /* External error handling function */
@@ -68,7 +72,7 @@ int usrChoice()
     int Choice;
 
     printf("\n");
-    printf(" welcome to The 'Time Client APPLICATION'\n\n");
+    printf(" welcome to The 'Time Client Application'\n\n");
     printf(" what Do the Server can help you with: \n\n");
     printf(" choose one of the Options(1-6):\n\n 1-Get Time\n\n 2-Get Time Without Year\n\n 3-Get Time Since Epoch\n\n 4-Get Client To Server Delay Estimation\n\n 5-Measure RTT\n\n 6-Get Day And Month\n\n 0-ExitClient ");
     printf("\n");
@@ -114,7 +118,6 @@ char *loadToSendBuffer(int Choice){
         return "GetTimeSinceEpoch";
     case 4:
         return "GetClientToServerDelayEstimation";
-
     case 5:
         return "MeasureRTT";
     case 6:
@@ -124,51 +127,74 @@ char *loadToSendBuffer(int Choice){
     }
 }
 
-//This Function Construct The Server Address//
+/*This Function Construct The Server Address*/
 struct sockaddr_in SetSocketAddr(){
-
     struct sockaddr_in ServerAddr; /* Echo server address */
-
     /* Construct the server address structure */
-        memset(&ServerAddr, 0, sizeof(ServerAddr));    /* Zero out structure */
-        ServerAddr.sin_family = AF_INET;                 /* Internet address family */
-        ServerAddr.sin_addr.s_addr = inet_addr("127.0.0.1");  /* Server IP address */
-
+    memset(&ServerAddr, 0, sizeof(ServerAddr));    /* Zero out structure */
+    ServerAddr.sin_family = AF_INET;                 /* Internet address family */
+    ServerAddr.sin_addr.s_addr = inet_addr("127.0.0.1");  /* Server IP address */
     return ServerAddr;
-};
+}
 
-
+/*This Function Checks The User Input*/
 int UserInputCheck(){
 
- int flag = 1;
- int userChoice =0;
-
-        while(flag)
-        {
-            userChoice = usrChoice();
-            if(userChoice<=6 && userChoice>=0){
-                flag=0;
-            }
-            else{
-                printf("\n");
-                printf("user input is invalid! -> please enter a number between 1-6\n");
-            }
+    int flag = 1;
+    int userChoice =0;
+    while(flag)
+    {
+        userChoice = usrChoice();
+        if(userChoice<=6 && userChoice>=0){
+            flag=0;
         }
+        else{
+            printf("\n");
+            printf("user input is invalid! -> please enter a number between 1-6\n");
+        }
+    }
+    return userChoice;
+
+}
 
 
-return userChoice;
+/*This Function Sends And Checks using Sendto()- after The send the Function returns the time of send*/
+unsigned int sendRequest(int sock, char *sendBuff, struct sockaddr_in ServerAddr){
+    int sendRes;
+    unsigned int ticksSend;
 
+
+    /* Send the string, including the null terminator, to the server */
+    if (sendRes = sendto(sock, sendBuff, strlen(sendBuff), 0, (struct sockaddr *)
+               &ServerAddr, sizeof(ServerAddr)) < 0)
+               {
+                   DieWithError("Error at sendto()");
+               }
+
+    /*For The RTT measurement - we save the time in MiliSeconds after Last Byte Was Sent in this packet*/
+    ticksSend = GetTickCount();
+
+
+return ticksSend;
+}
+
+
+
+/*This Function Receives The Servers Response */
+void recvResponse(int sock, char recvBuff[ECHOMAX], struct sockaddr_in fromAddr, unsigned int fromSize){
+
+    if ((recvfrom(sock, recvBuff, 255, 0, (struct sockaddr *) &fromAddr,&fromSize) < 0) )
+        {
+            DieWithError("\nError Server Not Found\n");
+        }
 }
 
 
 
 
-
-
-//this Function Runs The client Loop//
-void Run( unsigned short ServerPort,WSADATA wsaData)
+/*this Function Runs The client Loop*/
+void Run(unsigned short ServerPort, WSADATA wsaData)
 {
-
     int sock;                        /* Socket descriptor */
     struct sockaddr_in ServerAddr; /* Echo server address */
     struct sockaddr_in fromAddr;     /* Source address of echo */
@@ -180,87 +206,136 @@ void Run( unsigned short ServerPort,WSADATA wsaData)
     int userChoice = 0;
     unsigned int ticksSend;
     unsigned int ticksRecive;
+    /*unsigned int ticksServer;
+    unsigned int ticksClient;*/
 
 
     ServerAddr = SetSocketAddr();
 
+    while(FOREVER){
 
-    while(FOREVER)
+
+        userChoice = UserInputCheck();
+
+
+        /*closing the Program here*/
+        if(userChoice == 0)
         {
-
-
-    userChoice = UserInputCheck();
-    //closing the Program here- No Socket created yet//
-    if(userChoice == 0)
-    {
-
-        printf("\n");
-        printf("Closing Connection.");
-        printf("\n\n");
-        closesocket(sock);
-        printf("User Closed The Program! :) all Sockets are closed");
-
-        exit(0);
-    }
-        sendBuff = loadToSendBuffer(userChoice);
-
-        printf("\n");
-        printf("User Choice is: %d \n",userChoice);
-        printf("%s \n",sendBuff);
-
-
-        if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
-            {
-                fprintf(stderr, "WSAStartup() failed");
-                exit(1);
-            }
-        /* Create a best-effort datagram socket using UDP */
-        if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
-        {
-            DieWithError("socket() failed");
-
+            printf("\n");
+            printf("Closing Connection.");
+            printf("\n\n");
+            closesocket(sock);
+            printf("User Closed The Program! :) all Sockets are closed");
+            exit(0);
         }
+            sendBuff = loadToSendBuffer(userChoice);
 
-        ServerAddr.sin_port = htons(ServerPort);     /* Server port */
-
-        //For The RTT measurement - we save the time in Ticks before we send//
-        ticksSend = GetTickCount();
-
-        /* Send the string, including the null terminator, to the server */
-        if (sendRes = sendto(sock, sendBuff, strlen(sendBuff), 0, (struct sockaddr *)
-                   &ServerAddr, sizeof(ServerAddr)) < 0)
-                   {
-                       DieWithError("Error at sendto()");
-                   }
+            printf("\n");
+            printf("User Choice is: %d \n",userChoice);
+            printf("%s \n",sendBuff);
 
 
+            if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) /* Load Winsock 2.0 DLL */
+                {
+                    fprintf(stderr, "WSAStartup() failed");
+                    exit(1);
+                }
 
-        fromSize = sizeof(fromAddr);
-        strncpy(recvBuff,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 64);
-
-        /* Recv a response */
-        if ((recvfrom(sock, recvBuff, 255, 0, (struct sockaddr *) &fromAddr,&fromSize) < 0) )
+            /* Create a best-effort datagram socket using UDP */
+            if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
             {
-                DieWithError("\nError Server Not Found\n");
+                DieWithError("socket() failed");
+
             }
 
-        //in case of RTT measurement - The server Send us a Flag AND we calculate the Time here => TimeNow - Time of packet Sent//
-        if(!strcmp(recvBuff, "MRTT")){
+             /* Server port */
+            ServerAddr.sin_port = htons(ServerPort);
 
-            unsigned int  res = 0;
-            ticksRecive = GetTickCount();
-            printf("\n\n\n@@@@@ ticksRecive = %d AND ticksSend = %d \n \n",ticksRecive,ticksSend );
-            res += (ticksRecive - ticksSend);
-            printf("The Round Trip Time (RTT) is: %d milliseconds\n",res);
-        }
 
-        else{
-            printf("Client Received : %s\n",recvBuff);
-        }
+            fromSize = sizeof(fromAddr);
+            strncpy(recvBuff,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", SIZE);
 
-        printf("\n\n");
 
-        WSACleanup();  /* Cleanup Winsock */
+            /*send request*/
+            sendRequest(sock, sendBuff, ServerAddr);
+            /*Recv a response*/
+            recvResponse(sock, recvBuff, fromAddr, fromSize);
+
+
+            if(!strcmp(recvBuff, "DELAY")){
+                unsigned int ticksServer[AVERAGE_CASES] = {0};
+                unsigned int ticksClient[AVERAGE_CASES] = {0};
+                int i = 0;
+                int averageFlag = 100;
+                double totalDelay = 0.0;
+                double delayAverage = 0.0;
+
+                while (averageFlag){
+                    /*send 100 requests and save server's time stamp*/
+                    sendRequest(sock, sendBuff, ServerAddr);
+                    ticksServer[i] = GetTickCount();
+                    averageFlag--;
+                    i++;
+                }
+
+                averageFlag = AVERAGE_CASES;
+                i = 0;
+
+                while (averageFlag){
+                    /*receive 100 responses and save client's time stamp*/
+                    recvResponse(sock, recvBuff, fromAddr, fromSize);
+                    ticksClient[i] = GetTickCount();
+                    averageFlag--;
+                    i++;
+                }
+
+                for (i=0; i<AVERAGE_CASES; i++){
+                    printf("client --> %d\n", ticksClient[i]);
+                    printf("server --> %d\n\n\n", ticksServer[i]);
+                    totalDelay += ticksClient[i] - ticksServer[i];
+                }
+
+                printf("%d\n", totalDelay);
+                delayAverage = totalDelay/AVERAGE_CASES;
+                printf("Average delay of 100 requests is %.2f MiliSeconds\n", delayAverage);
+            }
+
+
+            /*in case of RTT measurement - The server Send us a Flag AND we calculate the Time here => TimeNow - Time of packet Sent*/
+            if(!strcmp(recvBuff, "MRTT")){
+                double totalRtt = 0.0;
+                double rttAverage = 0.0;
+                int averageFlag = 100;
+
+                /*100 Iteration of Send-receive to server*/
+                while (averageFlag){
+                     double  rtt = 0;
+
+                    /*send request*/
+                    ticksSend = sendRequest(sock, sendBuff, ServerAddr);
+                    /*receive request*/
+                    recvResponse(sock, recvBuff, fromAddr, fromSize);
+
+                    ticksRecive = GetTickCount();
+                    rtt += (double)(ticksRecive - ticksSend);
+
+                    totalRtt += rtt;
+                    averageFlag--;
+
+                }
+                rttAverage = totalRtt/AVERAGE_CASES;
+                printf("\nAverage RTT of 100 requests is %.3f milliseconds", rttAverage);
+            }
+
+
+
+            else{
+                printf("Client Received : %s\n",recvBuff);
+            }
+
+            printf("\n\n");
+
+            WSACleanup();  /* Cleanup Winsock */
 
 
         }
