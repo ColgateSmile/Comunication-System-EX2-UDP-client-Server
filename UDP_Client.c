@@ -19,8 +19,6 @@
 #define FOREVER 1       /*Forever While Loop*/
 #define SIZE    64
 #define AVERAGE_CASES 100
-#define PORTMAX 65535
-#define PORTMIN 1024
 
 
 /*@@@@Function Deceleration@@@@*/
@@ -98,7 +96,7 @@ int getPort(){
         {
             DieWithError("User Choice of port is Invalid");
         }
-    if(portNum <= PORTMIN || portNum > PORTMAX)
+    if(portNum <= 1024)
     {
         DieWithError("Invalid Port Number - it Should be more than 1024");
     }
@@ -275,7 +273,6 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
                 while (averageFlag){
                     /*send 100 requests and save server's time stamp*/
                     sendRequest(sock, sendBuff, ServerAddr);
-                    ticksServer[i] = atoi(recvBuff);
                     averageFlag--;
                     i++;
                 }
@@ -286,20 +283,17 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
                 while (averageFlag){
                     /*receive 100 responses and save client's time stamp*/
                     recvResponse(sock, recvBuff, fromAddr, fromSize);
+                    ticksServer[i] = atoi(recvBuff);
                     ticksClient[i] = GetTickCount();
                     averageFlag--;
                     i++;
                 }
 
-                for (i=0; i<AVERAGE_CASES; i++){
-                    printf("client --> %d\n", ticksClient[i]);
-                    printf("server --> %d\n\n\n", ticksServer[i]);
+                for (i=0; i<AVERAGE_CASES; i++)
                     totalDelay += ticksClient[i] - ticksServer[i];
-                }
 
-                printf("%d\n", totalDelay);
                 delayAverage = totalDelay/AVERAGE_CASES;
-                printf("Average delay of 100 requests is %.2f MiliSeconds\n", delayAverage);
+                printf("Average delay of 100 requests is %.3f MiliSeconds\n", delayAverage);
             }
 
 

@@ -17,12 +17,6 @@
 #define ECHOMAX 255     /* Longest string to echo */
 #define SIZE    64
 #define SECONDS 3600
-#define PORTMAX 65535
-#define PORTMIN 1024
-
-
-
-
 #pragma comment(lib,"wsock32")
 
 
@@ -157,7 +151,7 @@ int getPort(){
         {
             DieWithError("UserChoice is Invalid");
         }
-    if(portNum <= PORTMIN || portNum> PORTMAX)
+    if(portNum <= 1024)
     {
         DieWithError("Invalid Port Number - it Should be more than 1024");
     }
