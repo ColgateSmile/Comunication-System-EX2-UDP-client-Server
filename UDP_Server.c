@@ -73,8 +73,6 @@ void main(int argc, char *argv[])
 
 
 
-
-
     /* Construct local address structure */
     memset(&ServerAddr, 0, sizeof(ServerAddr));   /* Zero out structure */
     ServerAddr.sin_family = AF_INET;                /* Internet address family */
@@ -179,7 +177,6 @@ char *ProcessrClientCommand(char *recvBuff)
         tm_info = localtime(&timer);
         strftime(timeBuff, SIZE, "%d-%m-%Y %H:%M:%S", tm_info);
         return timeBuff;
-
     }
 
     /*Works*/
@@ -188,7 +185,7 @@ char *ProcessrClientCommand(char *recvBuff)
 
         timer = time(NULL);
         tm_info = localtime(&timer);
-        strftime(timeBuff, SIZE, "%d-%m %H:%M:%S", tm_info);
+        strftime(timeBuff, SIZE, "the Time is: %H:%M:%S", tm_info);
         return timeBuff;
 
 
@@ -231,7 +228,7 @@ char *ProcessrClientCommand(char *recvBuff)
 
     }
 
-    /*we do not Receive  "User Closed The Program! :)" - server is always on not depends on Client's Activity*/
+    /*we do not Handle  "User Closed The Program! :)" - server is always on not depends on Client's Activity*/
 
 }
 

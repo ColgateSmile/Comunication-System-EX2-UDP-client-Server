@@ -253,7 +253,7 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
 
 
             fromSize = sizeof(fromAddr);
-            strncpy(recvBuff,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", SIZE);
+            strncpy(recvBuff,"\0\0\0\0\0\0\0\0\0", SIZE);
 
 
             /*send request*/
@@ -293,7 +293,7 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
                     totalDelay += ticksClient[i] - ticksServer[i];
 
                 delayAverage = totalDelay/AVERAGE_CASES;
-                printf("Average delay of 100 requests is %.3f MiliSeconds\n", delayAverage);
+                printf("Average delay of 100 requests is %.6f MiliSeconds\n", delayAverage);
             }
 
 
@@ -320,7 +320,7 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
 
                 }
                 rttAverage = totalRtt/AVERAGE_CASES;
-                printf("\nAverage RTT of 100 requests is %.3f milliseconds", rttAverage);
+                printf("\nAverage RTT of 100 requests is %.6f milliseconds", rttAverage);
             }
 
 
