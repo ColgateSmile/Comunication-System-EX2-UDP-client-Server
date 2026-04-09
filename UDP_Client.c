@@ -263,8 +263,8 @@ void Run(unsigned short ServerPort, WSADATA wsaData)
 
 
             if(userChoice == 4){
-                unsigned int ticksServer[AVERAGE_CASES] = {0};
-                unsigned int ticksClient[AVERAGE_CASES] = {0};
+                double ticksServer[AVERAGE_CASES] = {0};
+                double ticksClient[AVERAGE_CASES] = {0};
                 int i = 0;
                 int averageFlag = 100;
                 double totalDelay = 0.0;
